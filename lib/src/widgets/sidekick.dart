@@ -204,9 +204,18 @@ class _SidekickState extends State<Sidekick> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     if (_placeholderSize != null) {
       if (widget.placeholderBuilder == null) {
-        return SizedBox(
-          width: _placeholderSize.width,
-          height: _placeholderSize.height,
+        Future.delayed(Duration(microseconds: 1), () {
+          setState(() {
+            _placeholderSize = Size.zero;
+          });
+        });
+        return AnimatedSize(
+          duration: Duration(milliseconds: 150),
+          vsync: this,
+          child: SizedBox(
+            width: _placeholderSize.width,
+            height: _placeholderSize.height,
+          ),
         );
       } else {
         return widget.placeholderBuilder(context, widget.child);
