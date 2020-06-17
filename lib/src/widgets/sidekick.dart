@@ -205,9 +205,11 @@ class _SidekickState extends State<Sidekick> with TickerProviderStateMixin {
     if (_placeholderSize != null) {
       if (widget.placeholderBuilder == null) {
         Future.delayed(Duration(microseconds: 1), () {
-          setState(() {
-            _placeholderSize = Size.zero;
-          });
+          if (mounted) {
+            setState(() {
+              _placeholderSize = Size.zero;
+            });
+          }
         });
         return AnimatedSize(
           duration: Duration(milliseconds: 150),
