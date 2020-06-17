@@ -182,8 +182,10 @@ class Sidekick extends StatefulWidget {
 class _SidekickState extends State<Sidekick> with TickerProviderStateMixin {
   final GlobalKey _key = GlobalKey();
   Size _placeholderSize;
+  bool to = false;
 
-  void startFlight() {
+  void startFlight(_SidekickFlightManifest manifest) {
+    to = manifest.toSidekick == this;
     assert(mounted);
     final RenderBox box = context.findRenderObject();
     assert(box != null && box.hasSize);
@@ -205,7 +207,7 @@ class _SidekickState extends State<Sidekick> with TickerProviderStateMixin {
     if (_placeholderSize != null) {
       if (widget.placeholderBuilder == null) {
         Future.delayed(Duration(microseconds: 1), () {
-          if (mounted) {
+          if (to == false && mounted) {
             setState(() {
               _placeholderSize = Size.zero;
             });
@@ -383,8 +385,8 @@ class _SidekickFlight {
     else
       _proxyAnimation.parent = manifest.animation;
 
-    manifest.fromSidekick.startFlight();
-    manifest.toSidekick.startFlight();
+    manifest.fromSidekick.startFlight(manifest);
+    manifest.toSidekick.startFlight(manifest);
 
     sidekickRectTween = _doCreateRectTween(
       _globalBoundingBoxFor(manifest.fromSidekick.context),
@@ -427,7 +429,7 @@ class _SidekickFlight {
 
       if (manifest.fromSidekick != newManifest.toSidekick) {
         manifest.fromSidekick.endFlight();
-        newManifest.toSidekick.startFlight();
+        newManifest.toSidekick.startFlight(newManifest);
         sidekickRectTween = _doCreateRectTween(sidekickRectTween.end,
             _globalBoundingBoxFor(newManifest.toSidekick.context));
       } else {
@@ -453,8 +455,8 @@ class _SidekickFlight {
       manifest.toSidekick.endFlight();
 
       // Let the sidekicks rebuild with their placeholders.
-      newManifest.fromSidekick.startFlight();
-      newManifest.toSidekick.startFlight();
+      newManifest.fromSidekick.startFlight(newManifest);
+      newManifest.toSidekick.startFlight(newManifest);
 
       // Let the transition overlay also rebuild since
       // we cleared the old shuttle.
